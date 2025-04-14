@@ -133,6 +133,11 @@ class gated_resnet(nn.Module):
             nn.init.zeros_(self.film_beta.weight)    # W = 0
             nn.init.zeros_(self.film_beta.bias)      # b = 0  → beta  ≈ 0
 
+            nn.init.xavier_uniform_(self.film_gamma.weight)
+            nn.init.constant_(self.film_gamma.bias, 1.0)
+            nn.init.xavier_uniform_(self.film_beta.weight)
+            nn.init.constant_(self.film_beta.bias, 1.0)
+
             # self.film_gamma = nn.ModuleList([nn.Linear(embedding_dim, num_filters) for _ in range(6)])
             # self.film_beta  = nn.ModuleList([nn.Linear(embedding_dim, num_filters) for _ in range(6)])
             
@@ -166,7 +171,7 @@ class gated_resnet(nn.Module):
             x += self.nin_skip(self.nonlinearity(a))
 
         if class_embed is not None:
-            gamma = 0.02 * self.film_gamma(class_embed).unsqueeze(-1).unsqueeze(-1) + 1
+            gamma = self.film_gamma(class_embed).unsqueeze(-1).unsqueeze(-1) 
             beta = self.film_beta(class_embed).unsqueeze(-1).unsqueeze(-1)
 
             # if self.film_idx is None:
@@ -175,10 +180,10 @@ class gated_resnet(nn.Module):
             # n = self.film_beta[self.film_idx](class_embed)[:, :, None, None]  # Uncommented this line
             # x = m * x + n
 
-            # #debugging_film
-            # if self.film and (not hasattr(self, "_dbg_printed")):
-            #     with torch.no_grad():
-            #         print(f"[FiLM] gamma μ={m.mean():.3f}, σ={gamma.std():.3f}")
+            #debugging_film
+            if self.film and (not hasattr(self, "_dbg_printed")):
+                with torch.no_grad():
+                    print(f"[FiLM] gamma μ={gamma.mean():.3f}, σ={gamma.std():.3f}")
             x = gamma * x + beta
 
         x = self.nonlinearity(x)
