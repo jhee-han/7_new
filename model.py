@@ -56,7 +56,7 @@ class PixelCNNLayer_down(nn.Module):
 
 class PixelCNN(nn.Module):
     def __init__(self, nr_resnet=5, nr_filters=80, nr_logistic_mix=10,
-                    resnet_nonlinearity='concat_elu', input_channels=3, embedding_dim=80,num_classes=4, film=True,fusion_type='add',late_fusion=False, mid_fusion=True):
+                    resnet_nonlinearity='concat_elu', input_channels=3, embedding_dim=80,num_classes=4, film=True,fusion_type='add',late_fusion=True, mid_fusion=True):
         super(PixelCNN, self).__init__()
         if resnet_nonlinearity == 'concat_elu' :
             self.resnet_nonlinearity = lambda x : concat_elu(x)
@@ -155,7 +155,7 @@ class PixelCNN(nn.Module):
         ###    DOWN PASS    ###
         u  = u_list.pop()
         ul = ul_list.pop()
-        
+
         if self.mid_fusion:
             fuse_map = class_embed_map                      # (B,C,1,1)
             u  = u  + self.fuse_u (fuse_map)                # broadcast to spatial
@@ -187,23 +187,3 @@ class PixelCNN(nn.Module):
         return x_out
     
     
-class random_classifier(nn.Module):
-    def __init__(self, NUM_CLASSES):
-        super(random_classifier, self).__init__()
-        self.NUM_CLASSES = NUM_CLASSES
-        self.fc = nn.Linear(3, NUM_CLASSES)
-        print("Random classifier initialized")
-        # create a folder
-        if os.path.join(os.path.dirname(__file__), 'models') not in os.listdir():
-            os.mkdir(os.path.join(os.path.dirname(__file__), 'models'))
-        torch.save(self.state_dict(), os.path.join(os.path.dirname(__file__), 'models/conditional_pixelcnn.pth'))
-    def forward(self, x, device):
-        return torch.randint(0, self.NUM_CLASSES, (x.shape[0],)).to(device)
-    
-    if __name__ == '__main__':
-        dummy_input = torch.randn(2, 3, 32, 32)  # (batch, channels, height, width)
-        dummy_label = torch.randint(0, 4, (2,))  # 예: 4개의 클래스 중 랜덤한 2개 클래스
-
-        model = PixelCNN()
-        output = model(dummy_input, dummy_label)
-        print("Output shape:", output.shape)
