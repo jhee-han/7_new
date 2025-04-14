@@ -208,8 +208,13 @@ if __name__ == '__main__':
         cutout_scale = (0.24, 0.26)      # (min, max)  ← 길이 2짜리 튜플!
 
         train_transforms = Compose([
+            ToPILImage(),
             RandomCrop(32, padding=4, padding_mode='reflect'),
             RandomHorizontalFlip(),
+            ColorJitter(0.2, 0.2, 0.2, 0.1),         
+            RandAugment(num_ops=2, magnitude=9), 
+            ToTensor(),     
+            RandomErasing(p=0.5, scale=(0.1, 0.25)), 
             rescaling
         ])
 
@@ -248,7 +253,7 @@ if __name__ == '__main__':
     sample_op = lambda x : sample_from_discretized_mix_logistic(x, args.nr_logistic_mix)
 
     model = PixelCNN(nr_resnet=args.nr_resnet, nr_filters=args.nr_filters, 
-                input_channels=input_channels, nr_logistic_mix=args.nr_logistic_mix,film=True)
+                input_channels=input_channels, nr_logistic_mix=args.nr_logistic_mix,film=False)
     model = model.to(device)
 
     if args.load_params:
