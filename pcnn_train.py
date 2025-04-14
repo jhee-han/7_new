@@ -328,7 +328,7 @@ if __name__ == '__main__':
             local_dir = './models' 
             os.makedirs(local_dir, exist_ok=True)
 
-            CKPT_DIR = '/content/drive/MyDrive/CPEN455/models'
+            CKPT_DIR = '/content/drive/MyDrive/CPEN455/models_7_new_late_no_film'
             os.makedirs(CKPT_DIR, exist_ok=True)
 
 
