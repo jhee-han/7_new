@@ -122,9 +122,10 @@ class PixelCNN(nn.Module):
         class_embed_vec =self.embedding(class_labels)  # (B, embedding_dim)
         # class_embedding = class_embedding.view(class_embedding.size(0),class_embedding.size(1),1,1) # (B, embedding_dim,1,1)
 
-        if self.training and self.label_dropout_prob > 0:
-            dropout_mask = (torch.rand(class_labels.shape[0], device=x.device) < self.label_dropout_prob)
-            class_embed_vec[dropout_mask] = torch.randn_like(class_embed_vec[dropout_mask]) * 0.01
+        # #dropout
+        # if self.training and self.label_dropout_prob > 0:
+        #     dropout_mask = (torch.rand(class_labels.shape[0], device=x.device) < self.label_dropout_prob)
+        #     class_embed_vec[dropout_mask] = torch.randn_like(class_embed_vec[dropout_mask]) * 0.01
 
 
         class_embed_map = class_embed_vec[:, :, None, None]

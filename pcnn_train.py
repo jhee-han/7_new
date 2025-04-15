@@ -204,19 +204,19 @@ if __name__ == '__main__':
             raise Exception('{} dataset not in {cifar10, cifar100}'.format(args.dataset))
     
     elif "cpen455" in args.dataset:
-        # ds_transforms = transforms.Compose([transforms.Resize((32, 32)), rescaling]) #original
-        cutout_scale = (0.24, 0.26)      # (min, max)  ← 길이 2짜리 튜플!
+        ds_transforms = transforms.Compose([transforms.Resize((32, 32)), rescaling]) #original
+        # cutout_scale = (0.24, 0.26)      # (min, max)  ← 길이 2짜리 튜플!
 
-        train_transforms = Compose([
-            ToPILImage(),
-            RandomCrop(32, padding=4, padding_mode='reflect'),
-            RandomHorizontalFlip(),
-            ColorJitter(0.2, 0.2, 0.2, 0.1),         
-            RandAugment(num_ops=2, magnitude=9), 
-            ToTensor(),     
-            RandomErasing(p=0.5, scale=(0.1, 0.25)), 
-            rescaling
-        ])
+        # train_transforms = Compose([
+        #     ToPILImage(),
+        #     RandomCrop(32, padding=4, padding_mode='reflect'),
+        #     RandomHorizontalFlip(),
+        #     ColorJitter(0.2, 0.2, 0.2, 0.1),         
+        #     RandAugment(num_ops=2, magnitude=9), 
+        #     ToTensor(),     
+        #     RandomErasing(p=0.5, scale=(0.1, 0.25)), 
+        #     rescaling
+        # ])
 
         val_transforms = transforms.Compose([
         transforms.Resize((32, 32)),
@@ -225,19 +225,19 @@ if __name__ == '__main__':
 
         train_loader = torch.utils.data.DataLoader(CPEN455Dataset(root_dir=args.data_dir, 
                                                                   mode = 'train', 
-                                                                  transform=train_transforms), #ds_transform to train_transforms
+                                                                  transform=ds_transforms), #ds_transform to train_transforms
                                                    batch_size=args.batch_size, 
                                                    shuffle=True, 
                                                    **kwargs)
         test_loader  = torch.utils.data.DataLoader(CPEN455Dataset(root_dir=args.data_dir, 
                                                                   mode = 'test', 
-                                                                  transform=val_transforms), #ds_transform to val_transforms
+                                                                  transform=ds_transform), #ds_transform to val_transforms
                                                    batch_size=args.batch_size, 
                                                    shuffle=True, 
                                                    **kwargs)
         val_loader  = torch.utils.data.DataLoader(CPEN455Dataset(root_dir=args.data_dir, 
                                                                   mode = 'validation', 
-                                                                  transform=val_transforms), #ds_transform to val_transforms
+                                                                  transform=ds_transform), #ds_transform to val_transforms
                                                    batch_size=args.batch_size, 
                                                    shuffle=True, 
                                                    **kwargs)
@@ -333,7 +333,7 @@ if __name__ == '__main__':
             local_dir = './models' 
             os.makedirs(local_dir, exist_ok=True)
 
-            CKPT_DIR = '/content/drive/MyDrive/CPEN455/models_7_film_mid_late_aug_dropout'
+            CKPT_DIR = '/content/drive/MyDrive/CPEN455/models_7_film_mid_late_noaugdrop'
             os.makedirs(CKPT_DIR, exist_ok=True)
 
 
