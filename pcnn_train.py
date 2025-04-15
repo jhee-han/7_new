@@ -17,6 +17,7 @@ from torchvision.transforms import (Compose, ToPILImage, ToTensor,
                                     RandAugment, RandomCrop,
                                     RandomHorizontalFlip, RandomErasing,ColorJitter, GaussianBlur)
 NUM_CLASSES = len(my_bidict)
+warmup_epochs = 5 
 
 def classifier(model, data_loader, device):
     """validation/test dataloader 로 정확도 계산"""
@@ -274,7 +275,19 @@ if __name__ == '__main__':
                       args = args, 
                       epoch = epoch, 
                       mode = 'training',
-                      ema = ema)
+                     ema = None)
+
+        if epoch >= warmup_epochs:
+            ema.update(model)
+
+        train_or_test(model = model,
+                  data_loader = val_loader,
+                  optimizer = optimizer,
+                  loss_op = loss_op,
+                  device = device,
+                  args = args,
+                  epoch = epoch,
+                  mode = 'val')
         
         # decrease learning rate
         scheduler.step()
