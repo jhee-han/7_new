@@ -17,7 +17,7 @@ from torchvision.transforms import (Compose, ToPILImage, ToTensor,
                                     RandAugment, RandomCrop,
                                     RandomHorizontalFlip, RandomErasing,ColorJitter, GaussianBlur)
 NUM_CLASSES = len(my_bidict)
-warmup_epochs = 5 
+# warmup_epochs = 5 
 
 def classifier(model, data_loader, device):
     """validation/test dataloader 로 정확도 계산"""
@@ -47,7 +47,7 @@ def fast_predict(model, x, num_classes):
     ll_all = torch.cat(ll_list, dim=1)            # (B, K)
     return ll_all.argmax(1)                       # (B,)
 
-def train_or_test(model, data_loader, optimizer, loss_op, device, args, epoch, mode = 'training', ema=None):
+def train_or_test(model, data_loader, optimizer, loss_op, device, args, epoch, mode = 'training'):
     if mode == 'training':
         model.train()
     else:
@@ -76,8 +76,8 @@ def train_or_test(model, data_loader, optimizer, loss_op, device, args, epoch, m
             optimizer.zero_grad()
             loss.backward()
             optimizer.step()
-            if ema is not None:          
-                ema.update(model)
+            # if ema is not None:          
+            #     ema.update(model)
         
     # if args.en_wandb:
     #     wandb.log({mode + "-Average-BPD" : loss_tracker.get_mean()})
@@ -263,7 +263,7 @@ if __name__ == '__main__':
 
     optimizer = optim.AdamW(model.parameters(), lr=args.lr, weight_decay=1e-4)
     scheduler = lr_scheduler.StepLR(optimizer, step_size=1, gamma=args.lr_decay)
-    ema = EMA(model, decay=0.999)
+    # ema = EMA(model, decay=0.999)
 
     
     for epoch in tqdm(range(args.max_epochs)):
@@ -274,11 +274,10 @@ if __name__ == '__main__':
                       device = device, 
                       args = args, 
                       epoch = epoch, 
-                      mode = 'training',
-                     ema = None)
+                      mode = 'training' )
 
-        if epoch >= warmup_epochs:
-            ema.update(model)
+        # if epoch >= warmup_epochs:
+        #     ema.update(model)
 
         train_or_test(model = model,
                   data_loader = val_loader,
@@ -317,8 +316,8 @@ if __name__ == '__main__':
         if epoch % args.sampling_interval == 0:
             print('......sampling......')
 
-            if epoch >= warmup_epochs:
-                ema.copy_to(model)
+            # if epoch >= warmup_epochs:
+            #     ema.copy_to(model)
 
             class_labels = torch.tensor([0, 1, 2, 3] * (args.sample_batch_size // 4), device=device) #unconditional 일 때 label이 필요 없으면 여기 label정의하지 않는 것?
             #pixelcnn에서 label을 가지고 오게 하는 것?
@@ -339,7 +338,7 @@ if __name__ == '__main__':
             if args.en_wandb:
                 wandb.log({"samples": sample_result,
                             "FID": fid_score})
-            ema.restore(model)
+            # ema.restore(model)
         
         if (epoch + 1) % args.save_interval == 0: 
             # if not os.path.exists("models"):
@@ -349,9 +348,9 @@ if __name__ == '__main__':
 
             CKPT_DIR = '/content/drive/MyDrive/CPEN455/models_7_film_mid_late_noaugdrop'
             os.makedirs(CKPT_DIR, exist_ok=True)
-            
-            if epoch >= warmup_epochs:
-                ema.copy_to(model)
+
+            # if epoch >= warmup_epochs:
+            #     ema.copy_to(model)
 
             # ema.copy_to(model)
 
@@ -364,7 +363,7 @@ if __name__ == '__main__':
                 'optim': optimizer.state_dict()},
                f'{CKPT_DIR}/pcnn_e{epoch+1}.pth')
                
-            ema.restore(model)
+            # ema.restore(model)
 
     save_name = f'models/conditional_pixelcnn_{args.tag}.pth'
     torch.save(model.state_dict(), save_name)

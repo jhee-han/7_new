@@ -241,26 +241,26 @@ def save_images(tensor, images_folder_path, label=''):
         img_path = f"{images_folder_path}/{label}_image_{i+1:02d}.png"
         img.save(img_path)
 
-class EMA:
-    def __init__(self, model, decay=0.999):
-        self.decay  = decay
-        self.shadow = {n: p.clone().detach() for n, p in model.named_parameters() if p.requires_grad}
+# class EMA:
+#     def __init__(self, model, decay=0.999):
+#         self.decay  = decay
+#         self.shadow = {n: p.clone().detach() for n, p in model.named_parameters() if p.requires_grad}
 
-    @torch.no_grad()
-    def update(self, model):
-        for n, p in model.named_parameters():
-            if n in self.shadow:
-                self.shadow[n].mul_(self.decay).add_(p, alpha=1-self.decay)
+#     @torch.no_grad()
+#     def update(self, model):
+#         for n, p in model.named_parameters():
+#             if n in self.shadow:
+#                 self.shadow[n].mul_(self.decay).add_(p, alpha=1-self.decay)
 
-    def copy_to(self, model):          # eval / sampling용
-        self.backup = {}
-        for n, p in model.named_parameters():
-            if n in self.shadow:
-                self.backup[n] = p.data.clone()
-                p.data.copy_(self.shadow[n])
+#     def copy_to(self, model):          # eval / sampling용
+#         self.backup = {}
+#         for n, p in model.named_parameters():
+#             if n in self.shadow:
+#                 self.backup[n] = p.data.clone()
+#                 p.data.copy_(self.shadow[n])
 
-    def restore(self, model):
-        for n, p in model.named_parameters():
-            if n in self.backup:
-                p.data.copy_(self.backup[n])
-        self.backup = {}
+#     def restore(self, model):
+#         for n, p in model.named_parameters():
+#             if n in self.backup:
+#                 p.data.copy_(self.backup[n])
+#         self.backup = {}
