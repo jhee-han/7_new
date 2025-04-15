@@ -317,7 +317,8 @@ if __name__ == '__main__':
         if epoch % args.sampling_interval == 0:
             print('......sampling......')
 
-            ema.copy_to(model)
+            if epoch >= warmup_epochs:
+                ema.copy_to(model)
 
             class_labels = torch.tensor([0, 1, 2, 3] * (args.sample_batch_size // 4), device=device) #unconditional 일 때 label이 필요 없으면 여기 label정의하지 않는 것?
             #pixelcnn에서 label을 가지고 오게 하는 것?
@@ -348,9 +349,11 @@ if __name__ == '__main__':
 
             CKPT_DIR = '/content/drive/MyDrive/CPEN455/models_7_film_mid_late_noaugdrop'
             os.makedirs(CKPT_DIR, exist_ok=True)
+            
+            if epoch >= warmup_epochs:
+                ema.copy_to(model)
 
-
-            ema.copy_to(model)
+            # ema.copy_to(model)
 
             # torch.save(model.state_dict(), 'models/{}_{}.pth'.format(model_name, epoch))
             torch.save(model.state_dict(), f'{local_dir}/{model_name}_{epoch+1}.pth')
