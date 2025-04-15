@@ -56,7 +56,7 @@ class PixelCNNLayer_down(nn.Module):
 
 class PixelCNN(nn.Module):
     def __init__(self, nr_resnet=5, nr_filters=80, nr_logistic_mix=10,
-                    resnet_nonlinearity='concat_elu', input_channels=3, embedding_dim=80,num_classes=4, film=False,fusion_type='add',late_fusion=True, mid_fusion=True):
+                    resnet_nonlinearity='concat_elu', input_channels=3, embedding_dim=80,num_classes=4, film=False,fusion_type='add',late_fusion=True, mid_fusion=True, label_dropout_prob=0.1):
         super(PixelCNN, self).__init__()
         if resnet_nonlinearity == 'concat_elu' :
             self.resnet_nonlinearity = lambda x : concat_elu(x)
@@ -108,6 +108,7 @@ class PixelCNN(nn.Module):
         self.nin_out = nin(nin_in_ch, num_mix * nr_logistic_mix)
         # self.nin_out = nin(nr_filters, num_mix * nr_logistic_mix)
         self.init_padding = None
+        self.label_dropout_prob = label_dropout_prob
 
         self.mid_fusion = mid_fusion
 
@@ -120,6 +121,12 @@ class PixelCNN(nn.Module):
         # similar as done in the tf repo :
         class_embed_vec =self.embedding(class_labels)  # (B, embedding_dim)
         # class_embedding = class_embedding.view(class_embedding.size(0),class_embedding.size(1),1,1) # (B, embedding_dim,1,1)
+
+        if self.training and self.label_dropout_prob > 0:
+            dropout_mask = (torch.rand(class_labels.shape[0], device=x.device) < self.label_dropout_prob)
+            class_embed_vec[dropout_mask] = torch.randn_like(class_embed_vec[dropout_mask]) * 0.01
+
+
         class_embed_map = class_embed_vec[:, :, None, None]
 
         #one hot mask

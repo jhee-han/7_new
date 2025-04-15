@@ -253,7 +253,7 @@ if __name__ == '__main__':
     sample_op = lambda x : sample_from_discretized_mix_logistic(x, args.nr_logistic_mix)
 
     model = PixelCNN(nr_resnet=args.nr_resnet, nr_filters=args.nr_filters, 
-                input_channels=input_channels, nr_logistic_mix=args.nr_logistic_mix,film=False)
+                input_channels=input_channels, nr_logistic_mix=args.nr_logistic_mix,film=True,late_fusion=True, mid_fusion=True)
     model = model.to(device)
 
     if args.load_params:
@@ -333,7 +333,7 @@ if __name__ == '__main__':
             local_dir = './models' 
             os.makedirs(local_dir, exist_ok=True)
 
-            CKPT_DIR = '/content/drive/MyDrive/CPEN455/models_7_new_late_no_film'
+            CKPT_DIR = '/content/drive/MyDrive/CPEN455/models_7_film_mid_late_aug_dropout'
             os.makedirs(CKPT_DIR, exist_ok=True)
 
 

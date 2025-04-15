@@ -181,9 +181,9 @@ class gated_resnet(nn.Module):
             # x = m * x + n
 
             #debugging_film
-            if self.film and (not hasattr(self, "_dbg_printed")):
-                with torch.no_grad():
-                    print(f"[FiLM] gamma μ={gamma.mean():.3f}, σ={gamma.std():.3f}")
+            # if self.film and (not hasattr(self, "_dbg_printed")):
+            #     with torch.no_grad():
+            #         print(f"[FiLM] gamma μ={gamma.mean():.3f}, σ={gamma.std():.3f}")
             x = gamma * x + beta
 
         x = self.nonlinearity(x)
